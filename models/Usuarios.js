@@ -1,26 +1,28 @@
 const {DataTypes} = require('sequelize');
 const { sequelize } = require('../database');
 
-const Reserva = sequelize.define('Reserva', {
+const User = sequelize.define('User', {
     // Model attributes are defined here
-    quienrealiza: {
+    username: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    codigoreserva: {
-        type: DataTypes.INTEGER,
-        allowNull: false
+    email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: {
+            args: true,
+            messge: 'El email ya existe'
+        },
     },
-    fechadevuelo: {
+    password: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    numerodeboleto: {
-        type: DataTypes.INTEGER,
-        allowNull: false
+    estado: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
     },
-    
-
     createdAt: {
         type: DataTypes.DATE,
         allowNull: false,

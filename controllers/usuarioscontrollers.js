@@ -1,28 +1,28 @@
-const reservaCtrl = {};
+const usuarioCtrl = {};
 const bcrypt = require('bcrypt');
-const Reserva = require('../models/Reserva');
+const Usuario = require('../models/Usuario');
 
-        // Controlador para crear nueva reserva 
-reservaCtrl.crearUsuario = async (req, res) => {
-    const { quienreserva, codigoreserva, fechadevuelo, numerodeboleto } = req.body;
+// Controlador para crear nuevo usuario
+usuarioCtrl.crearUsuario = async (req, res) => {
+    const { username, email, password } = req.body;
 
     try {
-        // Se verifica si la reserva ya existe 
-        const existeReserva = await Reserva.findOne({
+        // Se verifica si el usuario ya existe
+        const existeUsuario = await Usuario.findOne({
             where: {
                 email
             }
         });
 
 
-        if (existeReserva) {
+        if (existeUsuario) {
             throw ({ // throw siempre debe ejecutarse dentro de un try catch
                 status: 400,
-                message: 'La reserva ya existe',
+                message: 'El usuario ya existe',
             })
         };
 
-        const nuevaReserva = new Usuario({
+        const nuevoUsuario = new Usuario({
             username,
             email,
             password,
@@ -30,44 +30,44 @@ reservaCtrl.crearUsuario = async (req, res) => {
 
         // Encriptar contraseña
         const salt = await bcrypt.genSalt(10);
-        nuevaReserva.password = await bcrypt.hash(password, salt);
+        nuevoUsuario.password = await bcrypt.hash(password, salt);
 
-        // Guardar reserva en la base de datos
-        const reservaCreada = await nuevaReserva.save();
+        // Guardar usuario en la base de datos
+        const usuarioCreado = await nuevoUsuario.save();
 
-        if (!reservaCreada) {
+        if (!usuarioCreado) {
             throw ({
-                message: 'Error al hacer la reserva ',
+                message: 'Error al crear el usuario',
             })
         }
 
-        
+        // Se retorna la respuesta al cliente
         return res.status(201).json({
-            message: 'Reserva creada exitosamente',
+            message: 'Usuario creado exitosamente',
         });
     } catch (error) {
         console.log(error);
         return res.status(error.status || 500).json({
-            message: error.message || 'Error al crear la reserva',
+            message: error.message || 'Error al crear el usuario',
         });
     }
 };
 
-
-reservaCtrl.obtenerReserva = async (req, res) => {
+// Ctrl para obtener datos de un único usuario
+usuarioCtrl.obtenerUsuario = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const reserva = await Reserva.findByPk(id);
+        const usuario = await Usuario.findByPk(id);
 
         if (!usuario) {
             throw ({
                 status: 404,
-                message: 'No se ha encontrado la reserva'
+                message: 'No se ha encontrado el usuario'
             })
         }
 
-        return res.json(reserva);
+        return res.json(usuario);
     } catch (error) {
         console.log(error);
         return res.status(error.status || 500).json({
@@ -77,34 +77,34 @@ reservaCtrl.obtenerReserva = async (req, res) => {
 
 }
 
-// Controlador para obtener todas las reservas
-reservaCtrl.obtenerReservas = async (req, res) => {
+// Controlador para obtener todos los usuarios
+usuarioCtrl.obtenerUsuarios = async (req, res) => {
     try {
-        const reservas = await reservas.findAll({
+        const usuarios = await Usuario.findAll({
             where: {
                 estado: true,
             }
         });
 
-        if (!reservas) {
+        if (!usuarios) {
             throw ({
                 status: 404,
-                message: 'No se encontraron reservas',
+                message: 'No se encontraron usuarios',
             });
         }
 
-        return res.status(200).json(reservas);
+        return res.status(200).json(usuarios);
 
     } catch (error) {
         console.log(error);
         return res.status(error.status || 500).json({
-            message: error.message || 'Error al obtener las reservas',
+            message: error.message || 'Error al obtener los usuarios',
         });
     }
 };
 
 
-reservaCtrl.actualizarReserva = async (req, res) => {
+usuarioCtrl.actualizarUsuario = async (req, res) => {
 
     const { id } = req.params;
 
@@ -113,7 +113,7 @@ reservaCtrl.actualizarReserva = async (req, res) => {
 
     try {
 
-        const reservaActualizada = await Reserva.update({
+        const usuarioActualizado = await Usuario.update({
             email,
             username
         }, {
@@ -122,16 +122,16 @@ reservaCtrl.actualizarReserva = async (req, res) => {
             }
         })
 
-        if (!reservaActualizada) {
+        if (!usuarioActualizado) {
             throw ({
                 status: 400,
-                message: 'No se pudo actualizar la reserva'
+                message: 'No se pudo actualizar el usuario'
             })
         }
 
         return res.json({
-            message: 'Reserva actualizada correctamente',
-            reservaActualizada
+            message: 'Usuario actualizado correctamente',
+            usuarioActualizado
         });
     } catch (error) {
         console.log(error);
@@ -143,15 +143,15 @@ reservaCtrl.actualizarReserva = async (req, res) => {
 
 }
 
-// Ctrl para eliminar una reserva de forma lógica
-reservaCtrl.eliminarReserva = async (req, res) => {
+// Ctrl para eliminar un usuario de forma lógica
+usuarioCtrl.eliminarUsuario = async (req, res) => {
 
     const { id } = req.params
 
     try {
 
-        // Se cambia el estado del registro a false para indicar que la reserva fue eliminada
-        const usuarioReserva = Reserva.update({
+        // Se cambia el estado del registro a false para indicar que el usuario fue eliminado
+        const usuarioEliminado = Usuario.update({
             estado: false
         }, {
             where: {
@@ -162,7 +162,7 @@ reservaCtrl.eliminarReserva = async (req, res) => {
 
 
         // Si la BD devuelve false, significa que no eliminó
-        if (!reservaEliminada) {
+        if (!usuarioEliminado) {
             throw ({
                 status: 400,
                 message: 'Error al eliminar usuario'
@@ -182,4 +182,7 @@ reservaCtrl.eliminarReserva = async (req, res) => {
 
 }
 
-module.exports = reservaCtrl;
+
+
+
+module.exports = usuarioCtrl;
